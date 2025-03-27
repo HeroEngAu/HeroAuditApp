@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Audit Form</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <footer-right>© 2025 Hero Engineering</footer-right>
+        <div id="userInfo" style="position: absolute; top: 20px; left: 30px; font-size: 14px; color: #333;"></div>
+        <div id="projectInfo" style="position: absolute; top: 40px; left: 30px; font-size: 14px; color: #333;"></div>
+        <div id="currentDate" style="position: absolute; top: 60px; left: 30px; font-size: 14px; color: #333;"></div>
+        <img class="logo-top" src="/images/hero.png" alt="Company Logo">
+    
+        <div class="login-container">
+            <h2>Audit Form</h2>
+            <br></br>
+            <div class="form-fields">
+                <div class="field">
+                    <label for="testName">Test Name:</label>
+                    <input type="text" id="testName" readonly>
+                </div>
+                <div class="field">
+                    <label for="equipment">Equipment:</label>
+                    <input type="text" id="equipment" readonly>
+                </div>
+                <div class="field">
+                    <label for="testDescription">Test Description:</label>
+                    <textarea id="testDescription" rows="4" placeholder="Enter test description..."></textarea>
+                </div>
+                <button id="Save Description" onclick="saveTestDescription()">Save Test Description</button>
+                <a href="#" id="returnButton"><returnbtm>←</returnbtm></a> 
+            </div>
+        </div>
+            <!-- Controls (Buttons for Table Management) -->
+            <h3>Customize the table</h3>
+            <div class="controls">
+            <button id="addRowBtn">Add Row</button>
+            <button id="addColumnBtn">Add Column</button>
+            <button id="removeRowBtn">Remove Row</button>
+            <button id="removeColumnBtn">Remove Column</button>
+            <button id="saveTable">Save Table</button>
+        </div>
+            
+        <!-- Table -->
+        <table id="auditFormTable" class="dynamic-table">
+            <thead>
+                <tr>
+                    <th class="column" data-column-id="0" contenteditable="true">Step</th>
+                    <th class="column" data-column-id="1" contenteditable="true">Description</th>
+                    <th class="column" data-column-id="2" contenteditable="true">Result</th>
+                    <th class="column" data-column-id="3" contenteditable="true">Action</th>
+                    <th class="column" data-column-id="4" contenteditable="true">Comments</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td contenteditable="true">1</td>
+                    <td contenteditable="true">Test Description</td>
+                    <td contenteditable="true">Pass</td>
+                    <td contenteditable="true">Action Taken</td>
+                    <td contenteditable="true">Some comments</td>
+                </tr>
+            </tbody>
+        </table>
+              
+        <script src="js/auditform.js"></script>
+    </body>
+</html>

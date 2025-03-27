@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Run Form</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <footer-right>© 2025 Hero Engineering</footer-right>
+        <footer-left><span id="currentDate"></span></footer-left>
+        <div id="userInfo" style="position: absolute; top: 20px; left: 30px; font-size: 14px; color: #333;"></div>
+        <img class="logo-top" src="/images/hero.png" alt="Company Logo">
+
+        <div class="login-container">
+            <h2>Run Test</h2>
+
+            <form id="runTestForm">
+                <!-- Client, Project, and Project ID Dropdowns -->
+                <label for="client">Client</label>
+                <select id="client" class="styled-select">
+                    <!-- Options will be populated dynamically or from localStorage -->
+                </select>
+
+                <label for="project">Project</label>
+                <select id="project" class="styled-select">
+                    <!-- Options will be populated dynamically -->
+                </select>
+
+                <label for="projectId">Project ID</label>
+                <select id="projectId" class="styled-select">
+                    <!-- Options will be populated dynamically -->
+                </select>
+
+                <!-- Equipment and Test Name Dropdowns -->
+                <label for="equipment">Equipment</label>
+                <select id="equipment" class="styled-select">
+                    <!-- Options will be populated dynamically -->
+                </select>
+
+                <label for="testName">Test Name</label>
+                <select id="testName" class="styled-select">
+                    <!-- Options will be populated dynamically -->
+                </select>
+
+                <!-- Document Number -->
+                <label for="docNumber">Document Number</label>
+                <select id="docNumber" class="styled-select">
+                    <!-- Options will be populated dynamically -->
+                </select>
+
+                <label for="equipmentTag">Equipment Tag</label>
+                <select id="equipmentTag" class="styled-select">
+                    <option value="">Select Equipment Tag</option>
+                </select>
+                <input type="text" id="customEquipmentTag" placeholder="Enter custom equipment tag" style="display:none;" />
+                
+                <!-- Buttons -->
+                <button type="button" id="runTestBtn">RUN Test</button>
+                <button type="button" id="resumeTestBtn">Resume Test</button>
+                <a href="#" id="returnButton"><returnbtm>←</returnbtm></a>
+            </form>
+
+            <div id="testStatus"></div> <!-- To show feedback -->
+        </div>
+        <script src="js/runform.js"></script> <!-- Link to your JS file -->
+    </body>
+</html>

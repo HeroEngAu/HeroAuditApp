@@ -1,0 +1,258 @@
+body {
+    font-family: Arial, serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background:#f1f7fc;
+    padding:80px 0;
+    position: relative;
+    margin: 0;
+    flex-direction: column;
+    overflow-y: auto; /* Enable scrolling if the content exceeds the max height */
+}
+footer-right {
+    position: absolute;
+    bottom: 0%;
+    right: 5px;
+    color: #333;
+    font-size: 14px;
+}
+footer-left {
+    position: absolute;
+    top: 35px;
+    left: 30px;
+    color: #333;
+    font-size: 14px;
+}
+
+h1 {
+    position: relative;
+    top: 20%;
+    color: #4b4545;
+    font-size: 24px;
+    left: 0%;
+    margin: 0;
+    padding: 30px;
+    text-align: center;
+}
+h3 {
+    position: relative;
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 20px; /* Space above the button */
+    text-align: center;
+}
+
+.logo-top {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    padding:0 0 20px;
+    width: 20%;
+    height: fixed;
+}
+
+.logo {
+    text-align: center;
+    padding: 0 0 20px;
+    width: 100%;
+    height: fixed;
+}
+
+.login-container {
+    max-width: 320px;
+    width: 100%;
+    margin: 0 auto;
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 4px;
+    color: #505e6c;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+.login-container input {
+    background: #f7f9fc;
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid #dfe7f1;
+    border-radius: 0;
+    box-shadow: none;
+    outline: none;
+    color: inherit;
+    text-indent: 8px;
+    height: 42px;
+}
+
+/* Estilização do Dropdown */
+.login-container label {
+    display: block;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 3px;
+}
+
+.styled-select {
+    width: 100%;
+    padding: 10px;
+    background-color: #f7f9fc;
+    border: 1px solid #dfe7f1;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
+    outline: none;
+    appearance: none; /* Remove o estilo padrão */
+    
+    /* Adiciona um ícone de seta */
+    background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+    cursor: pointer;
+}
+
+/* Efeito quando o usuário passa o mouse */
+.styled-select:hover {
+    border-color: #b0c4de;
+}
+
+/* Efeito de foco quando o usuário clica */
+.styled-select:focus {
+    border-color: #d4d63d;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}    
+
+.login-container button {
+    background:#d4d63d;
+    color:#000000;
+    width: 100%;
+    border-radius:4px;
+    padding:11px;
+    margin-top:26px;
+    display: inline-block;
+    cursor: pointer;
+    outline:none !important;
+    border:none;
+}
+.login-container button:hover {
+    background:#eb3b60;
+}
+.login-container button:active {
+    transform:translateY(1px);
+}
+.forgot{
+    display:block;
+    text-align:center;
+    font-size:12px;
+    color:#6f7a85;
+    opacity:0.9;
+    text-decoration:none;
+    padding-top: 16px;
+    float: none;
+}
+logoutbtm {
+    bottom: 0%;
+    left: 5px;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    background:#554101;
+    width: 55px;
+    border-radius:4px;
+    color: white;
+    padding:4px;
+    margin-top:26px;
+    display: block;
+    cursor: pointer;
+    right: 80%;
+}
+returnbtm {
+    font-family: "Lucida Sans", sans-serif;
+    font-size: 18px;
+    background:#554101;
+    width: 30px;
+    border-radius:4px;
+    color: white;
+    padding:4px;
+    margin-top:26px;
+    display: inline-block;
+    cursor: pointer;
+    text-align: center;
+    right: 80%;
+}
+/*
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f8f8f8;
+    color: #333;
+    font-size: 16px;
+}
+
+td {
+    color: #555;
+}
+
+.controls {
+    margin-bottom: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    width: auto;
+    gap: 10px;
+}
+
+button {
+    padding: 10px;
+    background-color: #c0c0b3;
+    color: rgb(0, 0, 0);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    flex: 1;
+}
+button:hover {
+    background-color: #eb3b60;
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+.form-fields {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.field {
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.field label {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.field input,
+.field textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #dfe7f1;
+    border-radius: 4px;
+    background: #f7f9fc;
+    color: inherit;
+    font-size: 16px;
+    resize: vertical;
+}

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Running Test</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <footer-right>© 2025 Hero Engineering</footer-right>
+    <div id="userInfo" style="position: absolute; top: 20px; left: 30px; font-size: 14px; color: #333;"></div>
+    <div id="currentDate" style="position: absolute; top: 60px; left: 30px; font-size: 14px; color: #333;"></div>
+    <img class="logo-top" src="/images/hero.png" alt="Company Logo">
+
+    <div class="login-container">
+        <h2>Execute Test Form</h2>
+        <div id="formInfo"></div>
+        <label for="testFinished">Test Finished</label>
+        <!-- Checkbox for marking test as finished -->
+        <label>
+            <input type="checkbox" id="testFinished"> Test Finished
+        </label>
+
+        <!-- Button to save the test report -->
+        <button id="saveTestReportBtn">Save Test Report</button>
+    </div>
+    
+        <table id="testFormTable" class="dynamic-table" border="1">
+            <thead>
+                <tr class="column" id="tableHeaders"></tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <button type="button" id="publishBtn">Publish Report</button>
+        <a href="runform.html" id="returnButton">← Return</a>
+        <button id="generatePDF">Generate PDF Report</button>
+    
+    <script src="js/runningtest.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+</body>
+</html>
