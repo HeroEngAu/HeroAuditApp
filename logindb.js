@@ -1,63 +1,52 @@
 const express = require("express");
-const path = require("path");
-const sql = require("mssql/msnodesqlv8");
-const { stringify } = require("querystring");
+const { MongoClient } = require("mongodb");
+const cors = require("cors");
 
 const app = express();
 const port = 3000;
+const mongoURL = "mongodb://localhost:27017"; 
+const dbName = "Timesite";
 
-//Middleware to parse JSON data (for POST requests)
 app.use(express.json());
+app.use(cors());
+const path = require("path");
+app.use(express.static(path.join(__dirname, "public")));
 
+let db = null;
 //Serve static files from the 'public' folder
 app.use(express.static("public"));
 
 //Configure the server and database
-const config = {
-    server: "HEROSQL1", 
-    database: "Test",  
-    driver: "msnodesqlv8",
-    options: {
-        trustedConnection: true,
-    }
-};
-// Login API endpoint
-app.post("/login", (req, res) => {
-    const { username, password } = req.body; //Get the username and password from the request body
+MongoClient.connect(mongoURL)
+  .then((client) => {
+    db = client.db(dbName);
+    console.log("Connected to MongoDB");
+  })
+  .catch((err) => console.error("Error to connect to MongoDB:", err));
 
-    //Connect to the database
-    sql.connect(config, function (err) {
-        if (err) {
-            console.error("Connection error:", err);
-            res.status(500).json({ success: false, message: "DB connection failed" });
-            return;
+
+// Login API endpoint
+app.post("/login", async (req, res) => {
+    const { username, password } = req.body; //Get the username and password from the request body
+    console.log("username:", username);
+    console.log("password:", password);
+    try {
+        const user = await db.collection("login").findOne({ User: username, Password: password });
+
+        if (user) {
+          res.json({
+            success: true,
+            message: "Login successful!",
+            name: user.Name,
+            role: user.Role, // Return the user's name and role
+          });
+        } else {
+          res.status(401).json({ success: false, message: "Invalid username or password" });
         }
-        //Create a new request object
-        const request = new sql.Request();
-        request.input("username", sql.VarChar, username);
-        request.input("password", sql.VarChar, password);
-        //Query the database
-        const query = `SELECT name, role FROM Login WHERE username = @username AND password = @password`;
-        //Execute the query
-        request.query(query, function (err, result) {
-            if (err) {
-                console.error("Query error:", err);
-                res.status(500).json({ success: false, message: "Query error" });
-            } else {
-                if (result.recordset.length > 0) {
-                    const user = result.recordset[0];
-                    res.json({
-                        success: true,
-                        message: "Login successful!",
-                        name: user.name,
-                        role: user.role    //Return the user's name and role
-                    });
-                } else {
-                    res.status(401).json({ success: false, message: "Invalid username or password" });
-                }
-            }
-        });
-    });
+      } catch (error) {
+        console.error("Query error:", error);
+        res.status(500).json({ success: false, message: "Database query error" });
+      }
 });
 
 app.post("/forgotPassword", async (req, res) => {
