@@ -25,7 +25,7 @@ async function forgotPassword() {
         });
 
         if (response.ok) {
-            alert("Password reset email sent successfully!");
+            alert("Password was reset successfully!");
         } else {
             const error = await response.json();
             alert(`Error: ${error.message}`);

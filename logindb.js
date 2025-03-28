@@ -59,38 +59,27 @@ app.post("/forgotPassword", async (req, res) => {
     try {
         const newPassword = Math.floor(1000000 + Math.random() * 9000000).toString(); // Generate a random 7-digit number as the new password
 
-        // Connect to the database
-        sql.connect(config, async (err) => {
-            if (err) {
-                console.error("Database connection error:", err);
-                return res.status(500).json({ message: "Database connection failed." });
-            }
-            // Create a new request object
-            const request = new sql.Request();
-            // Query to update the password
-            const query = `
-                UPDATE Login
-                SET Password = '${newPassword}'
-                WHERE email = '${email}'
-            `;
-            // Execute the query
-            request.query(query, (err, result) => {
-                if (err) {
-                    console.error("Error updating password in database:", err);
-                    return res.status(500).json({ message: "Failed to update password in database." });
-                }
-                if (result.rowsAffected[0] === 0) {
-                    return res.status(404).json({ message: "Email not found in the database." });
-                }
-                console.log(`Password updated for email: ${email}`);
-                res.status(200).json({ message: "Password updated successfully. Please check with your administrator for the new password." });
-            });
+        const result = await db.collection("login").updateOne(
+            {Email: email},
+            {$set: {Password: newPassword}}
+        );
+        console.log('Result:', result);
+
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ message: "Email not found in the database." });
+        }
+
+        console.log(`✅ Password updated for email: ${email}`);
+        res.status(200).json({
+            message: "Password updated successfully. Please check with your administrator for the new password.",
         });
-    } catch (err) {
-        console.error("Error:", err);
+
+    } catch (error) {
+        console.error("⚠️ Error updating password:", error);
         res.status(500).json({ message: "An error occurred while updating the password." });
     }
 });
+
 //Get the client and project names from the "TIMESITE" table (DB) to be used in the dropdown
 app.get("/timesite", (req, res) => {
     sql.connect(config, function (err) {
