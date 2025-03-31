@@ -99,28 +99,6 @@ app.get("/projects", async (req, res) => {
     const db = client.db("Clients");
     try {
         const clientName = decodeURIComponent(req.query.client);
-
-        if (!clientName) {
-            return res.status(400).json({ error: "Client parameter is required" });
-        }
-
-        // Query for the projects of a specific client
-        const timesiteData = await db.collection("clients").find(
-            { "Client": clientName },
-            { projection: { "projects.projectName": 1, _id: 0 } }
-        ).toArray();
-
-        res.json(timesiteData);
-    } catch (error) {
-        console.error("Query error:", error);
-        res.status(500).send("Query error");
-    }
-});
-
-app.get("/projectIDs", async (req, res) => {
-    const db = client.db("Clients");
-    try {
-        const clientName = decodeURIComponent(req.query.client);
         if (!clientName) {
             return res.status(400).json({ error: "Client parameter is required" });
         }
@@ -146,6 +124,41 @@ app.get("/projectIDs", async (req, res) => {
     } catch (error) {
         console.error("Query error:", error);
         res.status(500).send("Query error");
+    }
+});
+
+app.post("/saveFormData", async (req, res) => {
+    const db = client.db("Clients");
+    try {
+        const { client, projectName, projectID, equipment, testName, documentNumber } = req.body;
+
+        if (!client || !projectName || !projectID || !documentNumber || !equipment || !testName) {
+            return res.status(400).json({ error: "All fields are required" });
+        }
+
+        const result = await db.collection("clients").updateOne(
+            { "Client": client, "projects.projectID": projectID },
+            {
+                $push: {
+                    "projects.$.forms": {
+                        documentNumber: documentNumber,
+                        formData: {
+                            equipment: equipment,
+                            testName: testName
+                        }
+                    }
+                }
+            }
+        );
+
+        if (result.modifiedCount === 0) {
+            return res.status(404).json({ error: "Project ID not found" });
+        }
+
+        res.json({ success: true, message: "Form data saved successfully!" });
+    } catch (error) {
+        console.error("Error saving form data:", error);
+        res.status(500).json({ error: "Database error" });
     }
 });
 

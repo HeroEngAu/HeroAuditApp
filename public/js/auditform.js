@@ -92,60 +92,22 @@ function getQueryParam(name) {
     return urlParams.get(name);
 }
 
-// Function to populate the Project dropdown
-function populateProjects(clientName) {
-    const projectDropdown = document.getElementById("projectDropdown");
-
-    fetch(`/projects?client=${encodeURIComponent(clientName)}`)  // Fetch the projects based on the client name
-        .then(response => response.json())
-        .then(data => {
-            if (data && data.length > 0) {
-                projectDropdown.innerHTML = '<option value="">Select Project</option>';
-
-                const projects = data[0]?.projects || [];
-                projects.forEach(project => {
-                    const option = document.createElement("option");
-                    option.value = project.projectName; // Assuming projectName is the field name in your DB
-                    option.textContent = project.projectName;
-                    projectDropdown.appendChild(option);
-                });
-            } else {
-                console.error("No projects found for client:", clientName);
-            }
-        })
-        .catch(error => {
-            console.error("Error fetching project data:", error);
-        });
-}
-
-// On page load, get the client from the URL and populate the dropdown
-document.addEventListener("DOMContentLoaded", function() {
-    const clientName = getQueryParam("client");  // Get the client name from the URL
-    if (clientName) {
-        populateProjects(clientName);  // Populate the dropdown with the client-specific projects
-    } else {
-        console.error("Client name is missing in the URL");
-    }
-});
-
-// Function to populate the Project ID dropdown
-async function populateProjectIDs() {
+async function populateProject() {
     const urlParams = new URLSearchParams(window.location.search);
     const client = urlParams.get("client");
-    const projectDropdown = document.getElementById("projectIDDropdown");
-
-    if (!projectDropdown) {
-        console.error("Dropdown element with ID 'projectIDDropdown' not found.");
-        return;
-    }
-
-    if (!client) {
-        console.error("No client selected.");
-        return;
-    }
+        if (!client) {
+            console.error("No client selected.");
+            return;
+        }
+        const projectDropdown = document.getElementById("projectDropdown");
+        const projectIDDropdown = document.getElementById("projectIDDropdown");
+        if (!projectDropdown || !projectIDDropdown) {
+            console.error("Dropdown elements not found.");
+            return;
+        }
 
     try {
-        const response = await fetch(`/projectIDs?client=${encodeURIComponent(client)}`);
+        const response = await fetch(`/projects?client=${encodeURIComponent(client)}`);
         const data = await response.json();
 
         if (!Array.isArray(data) || data.length === 0) {
@@ -153,27 +115,40 @@ async function populateProjectIDs() {
             projectDropdown.innerHTML = '<option value="">No Projects Available</option>';
             return;
         }
+            projectDropdown.innerHTML = '<option value="">Select Project</option>';
+            projectIDDropdown.innerHTML = '<option value="">Select Project ID</option>';
 
-        projectDropdown.innerHTML = '<option value="">Select Project ID</option>'; // Reset dropdown
-
-        data.forEach(item => {
-            if (item.projectID) {
-                const option = document.createElement("option");
-                option.value = item.projectID;
-                option.textContent = `${item.projectName} (${item.projectID})`;
-                projectDropdown.appendChild(option);
-            }
+        const projectMap = new Map();
+        data.forEach(project => {
+            projectMap.set(project.projectName, project.projectID);
+            
+            // Populate Project Name dropdown
+            const projectOption = document.createElement("option");
+            projectOption.value = project.projectName;
+            projectOption.textContent = project.projectName;
+            projectDropdown.appendChild(projectOption);
         });
 
-        console.log("Populated Project ID Dropdown:", projectDropdown.innerHTML);
+        // Update Project ID dropdown when Project Name is selected
+        projectDropdown.addEventListener("change", function () {
+            const selectedProject = projectDropdown.value;
+            projectIDDropdown.innerHTML = '<option value="">Select Project ID</option>'; // Reset
 
-    } catch (error) {
-        console.error("Error fetching project IDs:", error);
-    }
-}
-        
-document.addEventListener("DOMContentLoaded", populateProjectIDs);
+            if (projectMap.has(selectedProject)) {
+                const projectIDOption = document.createElement("option");
+                projectIDOption.value = projectMap.get(selectedProject);
+                projectIDOption.textContent = projectMap.get(selectedProject);
+                projectIDDropdown.appendChild(projectIDOption);
+            }
+        });
+        } catch (error) {
+            console.error("Error fetching project IDs:", error);
+        }
+};
 
+document.addEventListener("DOMContentLoaded", populateProject);
+
+//Load the client name as the page open
 document.addEventListener("DOMContentLoaded", function () {
     const urlParams = new URLSearchParams(window.location.search);
     const client = urlParams.get("client");
@@ -184,4 +159,33 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
         console.warn("No client found in the URL.");
     }
+});
+
+document.getElementById("saveButton").addEventListener("click", () => {
+    const client = document.getElementById("client").value;
+    const projectName = document.getElementById("projectDropdown").value;
+    const projectID = document.getElementById("projectIDDropdown").value;
+    const equipment = document.getElementById("equipment").value;
+    const testName = document.getElementById("testName").value;
+    const documentNumber = document.getElementById("documentNumber").value;
+
+    if (!client || !projectName || !projectID || !equipment || !testName || !documentNumber) {
+        alert("Please fill all fields before saving.");
+        return;
+    }
+    //console.log('Data:', client, projectName, projectID, equipment, testName, documentNumber);
+    fetch("/saveFormData", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ client, projectName, projectID, equipment, testName, documentNumber })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Form data saved successfully!");
+        } else {
+            alert("Error: " + data.error);
+        }
+    })
+    .catch(error => console.error("Error saving form data:", error));
 });
