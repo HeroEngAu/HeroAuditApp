@@ -5,33 +5,31 @@ const cors = require("cors");
 const app = express();
 const port = 3000;
 const mongoURL = "mongodb://localhost:27017"; 
-const dbName = "Timesite";
+
 
 app.use(express.json());
 app.use(cors());
 const path = require("path");
 app.use(express.static(path.join(__dirname, "public")));
 
-let db = null;
-//Serve static files from the 'public' folder
-app.use(express.static("public"));
-
-//Configure the server and database
+// Initialize MongoDB client once
+let client;
 MongoClient.connect(mongoURL)
-  .then((client) => {
-    db = client.db(dbName);
+  .then((mongoClient) => {
+    client = mongoClient;
     console.log("Connected to MongoDB");
   })
-  .catch((err) => console.error("Error to connect to MongoDB:", err));
-
+  .catch((err) => console.error("Error connecting to MongoDB:", err));
 
 // Login API endpoint
 app.post("/login", async (req, res) => {
+    const db = client.db("Login");
+
     const { username, password } = req.body; //Get the username and password from the request body
     console.log("username:", username);
     console.log("password:", password);
     try {
-        const user = await db.collection("login").findOne({ User: username, Password: password });
+        const user = await db.collection("Login").findOne({ User: username, Password: password });
 
         if (user) {
           res.json({
@@ -50,6 +48,8 @@ app.post("/login", async (req, res) => {
 });
 
 app.post("/forgotPassword", async (req, res) => {
+    const db = client.db("Login");
+
     const { email } = req.body;
     // Check if the email is provided
     if (!email) {
@@ -59,47 +59,97 @@ app.post("/forgotPassword", async (req, res) => {
     try {
         const newPassword = Math.floor(1000000 + Math.random() * 9000000).toString(); // Generate a random 7-digit number as the new password
 
-        const result = await db.collection("login").updateOne(
+        const result = await db.collection("Login").updateOne(
             {Email: email},
             {$set: {Password: newPassword}}
         );
-        console.log('Result:', result);
+        //console.log('Result:', result);
 
         if (result.matchedCount === 0) {
             return res.status(404).json({ message: "Email not found in the database." });
         }
 
-        console.log(`✅ Password updated for email: ${email}`);
+        console.log(`Password updated for email: ${email}`);
         res.status(200).json({
-            message: "Password updated successfully. Please check with your administrator for the new password.",
+            message: "Password updated successfully.",
         });
 
     } catch (error) {
-        console.error("⚠️ Error updating password:", error);
+        console.error("Error updating password:", error);
         res.status(500).json({ message: "An error occurred while updating the password." });
     }
 });
 
 //Get the client and project names from the "TIMESITE" table (DB) to be used in the dropdown
-app.get("/timesite", (req, res) => {
-    sql.connect(config, function (err) {
-        if (err) {
-            console.error("DB connection error:", err);
-            res.status(500).send("DB connection failed");
-            return;
-        }
-        //Create a new request object
-        const request = new sql.Request();
-        request.query("SELECT DISTINCT Client, Project, ProjectID FROM TimeSite", function (err, result) {
-            if (err) {
-                console.error("Query error:", err);
-                res.status(500).send("Query error");
-            } else {
-                res.json(result.recordset);
-            }
-        });
-    });
+app.get("/clients", async (req, res) => {
+    const db = client.db("Clients");
+    try {
+        // Fetch the clients with only the Client field
+        const clients = await db.collection("clients").find({}, { projection: { Client: 1, _id: 0 } }).toArray();
+        
+        res.json(clients);  // Send the formatted data as a JSON response
+        //console.log('Formatted ClientsData:', clients);  // Log the formatted data
+    } catch (error) {
+        console.error("Query error:", error);
+        res.status(500).send("Query error");
+    }
 });
+
+app.get("/projects", async (req, res) => {
+    const db = client.db("Clients");
+    try {
+        const clientName = decodeURIComponent(req.query.client);
+
+        if (!clientName) {
+            return res.status(400).json({ error: "Client parameter is required" });
+        }
+
+        // Query for the projects of a specific client
+        const timesiteData = await db.collection("clients").find(
+            { "Client": clientName },
+            { projection: { "projects.projectName": 1, _id: 0 } }
+        ).toArray();
+
+        res.json(timesiteData);
+    } catch (error) {
+        console.error("Query error:", error);
+        res.status(500).send("Query error");
+    }
+});
+
+app.get("/projectIDs", async (req, res) => {
+    const db = client.db("Clients");
+    try {
+        const clientName = decodeURIComponent(req.query.client);
+        if (!clientName) {
+            return res.status(400).json({ error: "Client parameter is required" });
+        }
+
+        const clientData = await db.collection("clients").findOne(
+            { "Client": clientName },
+            { projection: { "projects.projectName": 1, "projects.projectID": 1, _id: 0 } }
+        );
+
+        console.log("Raw Client Data:", clientData);
+
+        if (!clientData || !clientData.projects) {
+            return res.status(404).json({ error: "No projects found for this client" });
+        }
+
+        const projectIDs = clientData.projects.map(project => ({
+            projectName: project.projectName,
+            projectID: project.projectID // Fixing the key name
+        }));
+
+        console.log("Formatted Project IDs:", projectIDs);
+        res.json(projectIDs);
+    } catch (error) {
+        console.error("Query error:", error);
+        res.status(500).send("Query error");
+    }
+});
+
+
 
 app.post("/create-form", async (req, res) => {
     const { client, project, projectId, equipment, testName, DocNumber } = req.body;
@@ -141,7 +191,7 @@ app.post("/create-form", async (req, res) => {
     }
 });
 
-app.post('/getTestDescription', async (req, res) => {
+/*app.post('/getTestDescription', async (req, res) => {
     const { client, projectName, projectId, equipment, testName } = req.body;
 
     try {
@@ -172,30 +222,23 @@ app.post('/getTestDescription', async (req, res) => {
         console.error("DB error:", err.message);
         res.json({ success: false, message: "DB error" });
     }
-});
+});*/
 
 
 //Get the equipments from the database to be userd in the dropdown
 app.get('/equipments', (req, res) => {
-    sql.connect(config, function (err) {
+    const request = new sql.Request();
+    request.query("SELECT DISTINCT Equipment FROM Webapp WHERE Equipment IS NOT NULL", function (err, result) {
         if (err) {
-            console.error("DB connection error:", err);
-            res.status(500).send("DB connection failed");
-            return;
+            console.error("Query error:", err);
+            res.status(500).send("Query error");
+        } else {
+            const equipmentList = result.recordset.map(row => row.Equipment);
+            res.json(equipmentList);
         }
-
-        const request = new sql.Request();
-        request.query("SELECT DISTINCT Equipment FROM Webapp WHERE Equipment IS NOT NULL", function (err, result) {
-            if (err) {
-                console.error("Query error:", err);
-                res.status(500).send("Query error");
-            } else {
-                const equipmentList = result.recordset.map(row => row.Equipment);
-                res.json(equipmentList);
-            }
-        });
     });
 });
+
 
 app.get('/equipmentTags', (req, res) => {
     sql.connect(config, function (err) {
@@ -383,6 +426,7 @@ app.get('/getTestNames', async (req, res) => {
 });
 
 const fs = require("fs");
+const { time } = require("console");
 
 app.post("/saveAuditForm", (req, res) => {
     const data = req.body;

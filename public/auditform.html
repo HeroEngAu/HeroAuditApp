@@ -9,28 +9,37 @@
     <body>
         <footer-right>© 2025 Hero Engineering</footer-right>
         <div id="userInfo" style="position: absolute; top: 20px; left: 30px; font-size: 14px; color: #333;"></div>
-        <div id="projectInfo" style="position: absolute; top: 40px; left: 30px; font-size: 14px; color: #333;"></div>
         <div id="currentDate" style="position: absolute; top: 60px; left: 30px; font-size: 14px; color: #333;"></div>
         <img class="logo-top" src="/images/hero.png" alt="Company Logo">
     
         <div class="login-container">
-            <h2>Audit Form</h2>
+            <h2>Edit Form</h2>
             <br></br>
             <div class="form-fields">
                 <div class="field">
-                    <label for="testName">Test Name:</label>
-                    <input type="text" id="testName" readonly>
+                    <label for="client">Client:</label>
+                    <input type="text" id="client" readonly>
                 </div>
-                <div class="field">
-                    <label for="equipment">Equipment:</label>
-                    <input type="text" id="equipment" readonly>
-                </div>
-                <div class="field">
-                    <label for="testDescription">Test Description:</label>
-                    <textarea id="testDescription" rows="4" placeholder="Enter test description..."></textarea>
-                </div>
-                <button id="Save Description" onclick="saveTestDescription()">Save Test Description</button>
-                <a href="#" id="returnButton"><returnbtm>←</returnbtm></a> 
+                <label for="projectDropdown">Project:</label>
+                <select id="projectDropdown" class="styled-select">
+                    <option value="">Select Project</option>
+                </select>
+            
+                <label for="projectIDDropdown">Project ID:</label>
+                <select id="projectIDDropdown" class="styled-select">
+                    <option value="">Select Project ID</option>
+                </select>
+            
+                <label for="equipment">Equipment Name:</label>
+                <input type="text" id="equipment">
+            
+                <label for="testName">Test Name:</label>
+                <input type="text" id="testName">
+            
+                <label for="docNumber">Document Number:</label>
+                <input type="text" id="docNumber">
+            
+                <button id="submitForm">Submit</button>
             </div>
         </div>
             <!-- Controls (Buttons for Table Management) -->

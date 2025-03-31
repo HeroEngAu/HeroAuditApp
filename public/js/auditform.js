@@ -1,14 +1,3 @@
-//Get project info from local storage
-const client = localStorage.getItem("client");
-const projectName = localStorage.getItem("project");
-const projectId = localStorage.getItem("projectId");
-if (client && projectName && projectId) {
-    document.getElementById("projectInfo").textContent = `Client: ${client} | Project: ${projectName} | Project ID: ${projectId}`;
-} else {
-    document.getElementById("projectInfo").textContent = "Project info not found.";
-    }
-//END --- Get project info from local storage
-
 //Get USER info from local storage
 const name = localStorage.getItem("name");
 const role = localStorage.getItem("role");    
@@ -97,131 +86,102 @@ removeColumnBtn.addEventListener("click", () => {
     }
 });
 
-function saveTestDescription() {
-    const description = document.getElementById("testDescription").value;
-
-    // Verify the values are correct before send to the backend
-    const client = localStorage.getItem("client");
-    const projectName = localStorage.getItem("project");
-    const projectId = localStorage.getItem("projectId");
-    const equipment = localStorage.getItem("equipment");
-    const testName = localStorage.getItem("testName");
-
-    console.log('Sending data to server:', { client, projectName, projectId,  equipment, testName, description });
-
-    const data = {
-        client: client,
-        projectName: projectName,
-        projectId: projectId,
-        equipment: equipment,
-        testName: testName,
-        description: description
-    };
-
-    fetch('/saveDescription', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    })
-    .then(res => res.json())
-    .then(response => {
-        if (response.success) {
-            alert("Description saved successfully.");
-            localStorage.setItem("description", data.description);
-        } else {
-            alert(`Failed to save: ${response.message}`);
-        }
-    })
-    .catch(error => {
-        console.error("Error saving description:", error);
-        alert("Server error.");
-    });
-}
-function saveAuditForm() {
-    // Collect form data
-    const client = localStorage.getItem("client");
-    const project = localStorage.getItem("project");
-    const projectId = localStorage.getItem("projectId");
-    const equipment = document.getElementById("equipment").value;
-    const testName = document.getElementById("testName").value;
-    const documentNumber = localStorage.getItem("docNumber") || "";
-
-    const table = document.getElementById("auditFormTable");
-    const headers = Array.from(table.querySelectorAll("thead th")).map(th => th.innerText.trim());
-    const rows = Array.from(table.querySelectorAll("tbody tr")).map(tr =>
-        Array.from(tr.querySelectorAll("td")).map(td => td.innerText.trim())
-    );
-
-    const data = {
-        client,
-        project,
-        projectId,
-        equipment,
-        testName,
-        documentNumber,
-        table: {
-            headers,
-            rows
-        }
-    };
-
-    fetch("/saveAuditForm", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(response => alert(response.message))
-    .catch(error => console.error("Error saving table:", error));
+// Function to get the query parameter (client) from the URL
+function getQueryParam(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
 }
 
-document.getElementById("saveTable").addEventListener("click", saveAuditForm);
+// Function to populate the Project dropdown
+function populateProjects(clientName) {
+    const projectDropdown = document.getElementById("projectDropdown");
 
-fetch("/loadAuditForm")
-.then(response => response.json())
-.then(data => {
-    console.log("JSON Data Loaded:", data);
-})
-.catch(error => console.error("Error loading data:", error));
+    fetch(`/projects?client=${encodeURIComponent(clientName)}`)  // Fetch the projects based on the client name
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.length > 0) {
+                projectDropdown.innerHTML = '<option value="">Select Project</option>';
 
-window.onload = function() {
-    // Retrieve the data passed from localStorage
-    const equipment = localStorage.getItem('equipment');
-    const testName = localStorage.getItem('testName');
-    const testDescription = localStorage.getItem('testDescription');
+                const projects = data[0]?.projects || [];
+                projects.forEach(project => {
+                    const option = document.createElement("option");
+                    option.value = project.projectName; // Assuming projectName is the field name in your DB
+                    option.textContent = project.projectName;
+                    projectDropdown.appendChild(option);
+                });
+            } else {
+                console.error("No projects found for client:", clientName);
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching project data:", error);
+        });
+}
 
-    // Pre-fill the fields with data
-    if (equipment && testName) {
-        document.getElementById('equipment').value = equipment;
-        document.getElementById('testName').value = testName;
-        document.getElementById('testDescription').value = testDescription || '';
-    }
-
-    // If a description exists, fill the description field. If it's empty, leave it blank.
-    if (testDescription) {
-        document.getElementById('testDescription').value = testDescription;
+// On page load, get the client from the URL and populate the dropdown
+document.addEventListener("DOMContentLoaded", function() {
+    const clientName = getQueryParam("client");  // Get the client name from the URL
+    if (clientName) {
+        populateProjects(clientName);  // Populate the dropdown with the client-specific projects
     } else {
-        document.getElementById('testDescription').value = ''; // Allow user to fill it in
+        console.error("Client name is missing in the URL");
+    }
+});
+
+// Function to populate the Project ID dropdown
+async function populateProjectIDs() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const client = urlParams.get("client");
+    const projectDropdown = document.getElementById("projectIDDropdown");
+
+    if (!projectDropdown) {
+        console.error("Dropdown element with ID 'projectIDDropdown' not found.");
+        return;
+    }
+
+    if (!client) {
+        console.error("No client selected.");
+        return;
+    }
+
+    try {
+        const response = await fetch(`/projectIDs?client=${encodeURIComponent(client)}`);
+        const data = await response.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+            console.warn("No project IDs found.");
+            projectDropdown.innerHTML = '<option value="">No Projects Available</option>';
+            return;
+        }
+
+        projectDropdown.innerHTML = '<option value="">Select Project ID</option>'; // Reset dropdown
+
+        data.forEach(item => {
+            if (item.projectID) {
+                const option = document.createElement("option");
+                option.value = item.projectID;
+                option.textContent = `${item.projectName} (${item.projectID})`;
+                projectDropdown.appendChild(option);
+            }
+        });
+
+        console.log("Populated Project ID Dropdown:", projectDropdown.innerHTML);
+
+    } catch (error) {
+        console.error("Error fetching project IDs:", error);
     }
 }
+        
+document.addEventListener("DOMContentLoaded", populateProjectIDs);
 
-//Clean up local storage
-document.getElementById('returnButton').addEventListener('click', function (e) {
-    e.preventDefault(); // prevents automatic redirection
+document.addEventListener("DOMContentLoaded", function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const client = urlParams.get("client");
+    const clientInput = document.getElementById("client");
 
-    localStorage.removeItem('equipment');
-    localStorage.removeItem('testName');
-    localStorage.removeItem('testDescription');
-    localStorage.removeItem('description');
-    localStorage.removeItem('client');
-    localStorage.removeItem('project');
-    localStorage.removeItem('projectId');
-    localStorage.removeItem('projectInfo');
-    localStorage.removeItem('clientDropdown');
-    localStorage.removeItem('projectDropdown');
-    localStorage.removeItem('projectDropdownId');
-    
-    window.location.href = '/newform.html';
+    if (client) {
+        clientInput.value = client; // Set the client name
+    } else {
+        console.warn("No client found in the URL.");
+    }
 });
