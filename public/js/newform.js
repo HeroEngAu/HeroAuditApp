@@ -48,3 +48,8 @@ document.getElementById("createFormButton").addEventListener("click", function()
     // Redirect to auditform.html with query parameters
     window.location.href = `/auditform.html?client=${encodeURIComponent(client)}`;
 });
+
+document.getElementById("returnButton").addEventListener("click", function() {
+
+    window.location.href = `/auditform.html`;
+});

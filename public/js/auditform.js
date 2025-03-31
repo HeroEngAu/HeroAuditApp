@@ -189,3 +189,8 @@ document.getElementById("saveButton").addEventListener("click", () => {
     })
     .catch(error => console.error("Error saving form data:", error));
 });
+
+document.getElementById("returnButton").addEventListener("click", function() {
+
+    window.location.href = `/newform.html`;
+});
